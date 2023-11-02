@@ -1,18 +1,21 @@
-const express = require('express');
+import express, {
+    json
+} from 'express';
 const app = express()
-const cors = require('cors');
-require("dotenv").config();
-const {
+import cors from 'cors';
+import {
     MongoClient,
     ServerApiVersion,
     ObjectId
-} = require('mongodb');
+} from 'mongodb';
+import dotenv from 'dotenv';
+dotenv.config();
 
 const port = process.env.PORT || 5001
 
 // middleware
 app.use(cors())
-app.use(express.json())
+app.use(json())
 
 const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.jhq5gsc.mongodb.net/?retryWrites=true&w=majority`;
 
@@ -27,14 +30,16 @@ const client = new MongoClient(uri, {
 async function run() {
     try {
 
+        // ====>product<====
         const productsCollection = client.db("productsDB").collection("products");
 
-        // ------>product<------
+
         // get || read
         app.get('/products', async (req, res) => {
             const result = await productsCollection.find().toArray()
             res.send(result)
         })
+
 
         // get one || read one
         app.get('/products/:id', async (req, res) => {
@@ -46,6 +51,7 @@ async function run() {
             res.send(result)
         })
 
+
         // post one || create one 
         app.post('/products', async (req, res) => {
             const newProduct = req.body
@@ -53,6 +59,7 @@ async function run() {
 
             res.send(result)
         })
+
 
         // put one || update one
         app.put('/products/:id', async (req, res) => {
@@ -79,6 +86,7 @@ async function run() {
             res.send(result)
         })
 
+
         // delete one
         app.delete('/products/:id', async (req, res) => {
             const id = req.params.id
@@ -90,14 +98,16 @@ async function run() {
         })
 
 
-        // ------>Cart<------
+        // ====>Cart<====
         const cartCollection = client.db("cartDB").collection("carts");
+
 
         // get || read
         app.get('/carts', async (req, res) => {
             const result = await cartCollection.find().toArray()
             res.send(result)
         })
+
 
         // get one || read one
         app.get('/carts/:id', async (req, res) => {
@@ -109,6 +119,7 @@ async function run() {
             res.send(result)
         })
 
+
         // post one || create one 
         app.post('/carts', async (req, res) => {
             const newCart = req.body
@@ -116,6 +127,7 @@ async function run() {
 
             res.send(result)
         })
+
 
         // put one || update one
         app.put('/carts/:id', async (req, res) => {
@@ -142,6 +154,7 @@ async function run() {
             res.send(result)
         })
 
+
         // delete one
         app.delete('/carts/:id', async (req, res) => {
             const id = req.params.id
@@ -154,9 +167,7 @@ async function run() {
 
 
         console.log("Pinged your deployment. You successfully connected to MongoDB!");
-    } finally {
-
-    }
+    } finally {}
 }
 run().catch(console.dir);
 

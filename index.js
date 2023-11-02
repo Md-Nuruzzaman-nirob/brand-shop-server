@@ -10,12 +10,18 @@ import {
 } from 'mongodb';
 import dotenv from 'dotenv';
 dotenv.config();
+import jwt from 'jsonwebtoken'
+import cookieParser from 'cookie-parser'
 
 const port = process.env.PORT || 5001
 
 // middleware
-app.use(cors())
+app.use(cors({
+    origin: 'http://localhost:5173',
+    credentials: true
+}))
 app.use(json())
+app.use(cookieParser())
 
 const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.jhq5gsc.mongodb.net/?retryWrites=true&w=majority`;
 
@@ -29,6 +35,30 @@ const client = new MongoClient(uri, {
 
 async function run() {
     try {
+        app.post('/jwt', async (req, res) => {
+            const user = req.body
+            const token = jwt.sign(user, process.env.ACCESS_TOKEN_SECRET, {
+                expiresIn: '1h'
+            })
+            res.cookie('token', token, {
+                    httpOnly: true,
+                    secure: true,
+                    sameSite: 'none'
+                })
+                .send({
+                    success: true
+                })
+        })
+
+        app.post('/logout', async (req, res) => {
+            // const user = req.body
+            // console.log(user);
+            res.clearCookie('token', {
+                maxAge: 0
+            }).send({
+                success: true,
+            })
+        })
 
         // ====>product<====
         const productsCollection = client.db("productsDB").collection("products");
